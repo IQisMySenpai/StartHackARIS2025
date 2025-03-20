@@ -34,7 +34,7 @@ def classification_request(message):
     }]
     for _ in range(5):
         completion = client.chat.completions.create(
-            model="gpt-4o-mini-2024-07-18",
+            model=config['openai_model'],
             messages=messages,
         )
 
