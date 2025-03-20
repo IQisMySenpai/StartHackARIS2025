@@ -17,7 +17,9 @@ app = Flask(__name__)
 
 whitelist = [
     '13233779601@s.whatsapp.net',
-    '41774063608@s.whatsapp.net'
+    '41774063608@s.whatsapp.net',
+    '41798815730@s.whatsapp.net',
+    '41782381072@s.whatsapp.net'
 ]
 
 @app.route('/wh/dummy', methods=['POST'])
