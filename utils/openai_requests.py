@@ -1,8 +1,7 @@
 from openai import OpenAI
 from utils.common import config_load
-from utils.openai_prompts import classification_prompt
+from utils.openai_prompts import classification_prompt, classic_response_prompt
 import datetime
-import json
 from pydantic import BaseModel
 from typing import Optional, Literal
 
@@ -11,6 +10,14 @@ config = config_load()
 client = OpenAI(
     api_key=config['openai_api_key']
 )
+
+def remove_response_formating(response, type):
+    response = response.strip('```')
+    if response.startswith(type):
+        response = response[len(type):]
+    response = response.strip('\n')
+
+    return response
 
 class ClassificationReport(BaseModel):
     name: Optional[str] = None
@@ -39,13 +46,7 @@ def classification_request(message):
         )
 
         response = completion.choices[0].message.content
-
-        if response.startswith('```'):
-            response = response[3:]
-        if response.endswith('```'):
-            response = response[:-3]
-        if response.startswith('json'):
-            response = response[4:]
+        response = remove_response_formating(response, 'json')
 
         try:
             return ClassificationReport.model_validate_json(response).model_dump(exclude_none=True)
@@ -55,3 +56,32 @@ def classification_request(message):
                 "content": f'Error Parsing JSON: {e}'
             })
             continue
+
+def classic_response_request(message):
+    messages = [{
+        "role": "developer",
+        "content": classic_response_prompt
+    }, {
+        "role": "user",
+        "content": f"""
+            # Message
+            {message}
+
+            # Context
+            Date and Time: {datetime.datetime.now(datetime.timezone.utc).isoformat()}
+        """
+    }]
+    for _ in range(5):
+        completion = client.chat.completions.create(
+            model=config['openai_model'],
+            messages=messages,
+        )
+
+        response = completion.choices[0].message.content
+        response = remove_response_formating(response, 'text')
+
+        if response:
+            return response
+
+    return None
+
