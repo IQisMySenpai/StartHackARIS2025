@@ -2,7 +2,7 @@ from time import sleep
 from random import uniform
 from mongoAPI import MongoAPI
 from utils.common import config_load, generate_writing_duration
-from utils.openai_requests import classic_response_request
+from utils.openai_requests import classic_response_request, syngenta_bio_request
 from utils.whatsapp_requests import send_message, change_state
 
 config = config_load()
@@ -34,6 +34,8 @@ while True:
 
         if message['question_type'] == 'Question' or message['question_type'] == 'Miscellaneous':
             response = classic_response_request(message, user, past_messages)
+        elif message['question_type'] == 'Syngenta Biological Question':
+            response = syngenta_bio_request(message, user, past_messages)
 
         change_state(message['wa_id'], 'composing')
         sleep(generate_writing_duration(response))
