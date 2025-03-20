@@ -2,3 +2,6 @@
 	path = baileysAPI
 	url = git@github.com:IQisMySenpai/Baileys-Web-API.git
 	branch = 11-expansion-of-functions-start-hack-2025
+[submodule "mongoAPI"]
+	path = mongoAPI
+	url = git@github.com:IQisMySenpai/MongoPythonAPI.git
