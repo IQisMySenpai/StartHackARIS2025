@@ -38,7 +38,7 @@ while True:
             response = syngenta_bio_request(message, user, past_messages)
 
         change_state(message['wa_id'], 'composing')
-        sleep(generate_writing_duration(response))
+        sleep(generate_writing_duration())
         change_state(message['wa_id'], 'paused')
         send_message(message['wa_id'], response)
 
