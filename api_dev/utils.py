@@ -1,4 +1,6 @@
 import requests
+from geopy.geocoders import Nominatim
+import re
 
 # Define forecast types
 forecast_type_dict = {
@@ -285,5 +287,26 @@ class CropRisksCalculator:
             return (self.binarize_result(result), result)
         else:
             return result
-    
 
+def extract_european_letters(text):
+    # Define a regex pattern for standard European letters and common accents
+    pattern = r"[A-Za-zÀ-ÿ]"  # This includes accented characters in the Latin-1 Supplement range
+
+    # Use re.findall to extract all matching characters
+    extracted_letters = re.findall(pattern, text)
+
+    # Join the list into a string
+    return ''.join(extracted_letters)
+
+def get_city_name(latitude, longitude):
+    # Initialize the geolocator
+    geoLoc = Nominatim(user_agent="my_geopy_app")
+    location = str(geoLoc.reverse(f'{latitude}, {longitude}'))
+    
+    # Split the location string by commas
+    address_parts = location.split(',')
+
+    # Extract the city name
+    # In this case, the city name is the fourth part (index 3)
+    city_name = address_parts[3].strip()  # Use strip() to remove any leading/trailing whitespace
+    return extract_european_letters(city_name)
