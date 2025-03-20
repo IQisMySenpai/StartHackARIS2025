@@ -38,7 +38,7 @@ def generate_image(elements, crop, location):
     bubble_width = 1000
     
     # Load the icon from a local file
-    icon_path="Icons/logo.png"
+    icon_path="api_dev\Icons\logo.png"
     if os.path.exists(icon_path):
         icon = Image.open(icon_path).convert("RGBA")
         icon.thumbnail((icon.width // 8, icon.height // 8), Image.ANTIALIAS)  # Scale down by 50% without distorting
@@ -131,10 +131,10 @@ location = "Dübendorf"
 
 
 elements=[
-    {"header": "Elevated temperature", "body": "The maximum temperature will be exceeded, I recommend applyig Stress Buster to ensure the well being of your crops.", "type": "warning", "icon": "Icons/temperature-arrow-up-solid.png", "status":1},
-    {"header": "Low moisture", "body": "A drought is incoming, I recomend appling Stress buster to ensure the well being of your crops.", "type": "warning", "icon": "Icons/sun-plant-wilt-solid.png","status":0},
-    {"header": "Frost Warning", "body": "Frost is expected in the coming days, I recommend applying Stress Buster to your crops to ensure their well being", "type": "warning", "icon": "Icons/snowflake-regular.png","status":0},
-    {"header": "Yield Risk", "body":"Based on avilible data, your yield is at a risk of being lower that expected. Apply Yield Booster to your crops to ensure the best possible yield.", "type": "warning", "icon": "Icons/arrow-down-wide-short-solid.png","status":1}
+    {"header": "Elevated temperature", "body": "The maximum temperature will be exceeded, I recommend applyig Stress Buster to ensure the well being of your crops.", "type": "warning", "icon": "api_dev/Icons/temperature-arrow-up-solid.png", "status":1},
+    {"header": "Low moisture", "body": "A drought is incoming, I recomend appling Stress buster to ensure the well being of your crops.", "type": "warning", "icon": "api_dev/Icons/sun-plant-wilt-solid.png","status":0},
+    {"header": "Frost Warning", "body": "Frost is expected in the coming days, I recommend applying Stress Buster to your crops to ensure their well being", "type": "warning", "icon": "api_dev/Icons/snowflake-regular.png","status":0},
+    {"header": "Yield Risk", "body":"Based on avilible data, your yield is at a risk of being lower that expected. Apply Yield Booster to your crops to ensure the best possible yield.", "type": "warning", "icon": "api_dev/Icons/arrow-down-wide-short-solid.png","status":1}
 ]
 
 
