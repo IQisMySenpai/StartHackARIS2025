@@ -2,8 +2,9 @@ classification_prompt = """
 You are given a whatsapp message from a user of our app (with some additional context). We would like you to extract following information from it:
 - Potential Name of the User [<Name>, null]
 - What the user is asking for: ['Question', 'Weather Data', 'Miscellaneous']
-- How good is the users english: ['Good', 'Bad', 'Average', null]
 - Is the user asking for data at a specific time: [<Time as ISO 8601>, null]
+- What language / dialect is the person speaking: [<Language>, null]
+- How good is the users literacy: ['Good', 'Bad', 'Average', null]
 
 ## Steps:
 1. Read the message carefully.
@@ -18,8 +19,9 @@ Always include the question field.
 {
     "name": "<Name>",
     "question": "<Question/Weather Data/Miscellaneous>",
-    "english": "<Good/Bad/Average>",
-    "time": "<Time as ISO 8601>" 
+    "time": "<Time as ISO 8601>",
+    "language": "<Language>",
+    "literacy": "<Good/Bad/Average>",
 }
 ```
 
@@ -39,8 +41,9 @@ The extracted information would be:
 {
     "name": "Marcus",
     "question": "Weather Data",
-    "english": "Good",
-    "time": "2022-02-02T00:00:00Z"
+    "time": "2022-02-02T00:00:00Z",
+    "language": "English",
+    "literacy": "Good"
 }
 ```
 
