@@ -1,6 +1,6 @@
 from openai import OpenAI
 from utils.common import config_load
-from utils.openai_prompts import classification_prompt, classic_response_prompt
+from utils.openai_prompts import classification_prompt, classic_response_prompt, syngenta_bio_prompt
 import datetime
 from pydantic import BaseModel
 from typing import Optional, Literal
@@ -22,7 +22,7 @@ def remove_response_formating(response, type):
 
 class ClassificationReport(BaseModel):
     name: Optional[str] = None
-    question: Literal['Question', 'Weather Data', 'Miscellaneous']
+    question: Literal['Syngenta Biological Question', 'Question', 'Weather Data', 'Miscellaneous']
     language: Optional[str] = None
     plant: Optional[str] = None
     literacy: Optional[Literal['Good', 'Bad', 'Average']] = None
@@ -60,9 +60,7 @@ def classification_request(message):
             })
             continue
 
-def classic_response_request(message, user, past_messages):
-    msg = message['original_message']
-
+def context_factory(user, message):
     context = f"Date and Time: {datetime.datetime.now(datetime.timezone.utc).isoformat()}"
     if 'name' in user:
         context += f"\nUser Name: {user['name']}"
@@ -74,6 +72,11 @@ def classic_response_request(message, user, past_messages):
         context += f"\nUser Literacy Level: {user['literacy']}"
     if 'target_time' in message:
         context += f"\nTarget Time: {message['target_time']}"
+
+    return context
+
+def classic_response_request(message, user, past_messages):
+    msg = message['original_message']
 
     messages = [{
         "role": "developer",
@@ -107,9 +110,62 @@ def classic_response_request(message, user, past_messages):
             {msg}
 
             # Context
-            {context}
+            {context_factory(user, message)}
         """
     })
+
+    for _ in range(5):
+        completion = client.chat.completions.create(
+            model=config['openai_model'],
+            messages=messages,
+        )
+
+        response = completion.choices[0].message.content
+        response = remove_response_formating(response, 'text')
+
+        if response:
+            return response
+
+    return None
+
+def syngenta_bio_request(message, user, past_messages):
+    msg = message['original_message']
+
+    messages = [{
+        "role": "developer",
+        "content": syngenta_bio_prompt
+    }]
+
+    past_messages.reverse()
+
+    for past_message in past_messages:
+        messages.append({
+            "role": "user",
+            "content": f"""
+                # Message
+                {past_message['original_message']}
+            """
+        })
+        messages.append({
+            "role": "assistant",
+            "content": f"""
+                ```text
+                {past_message['responded']}
+                ```
+            """
+        })
+
+    messages.append({
+        "role": "user",
+        "content": f"""
+            # Message
+            {msg}
+
+            # Context
+            {context_factory(user, message)}
+        """
+    })
+
     for _ in range(5):
         completion = client.chat.completions.create(
             model=config['openai_model'],
