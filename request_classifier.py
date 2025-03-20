@@ -36,6 +36,8 @@ def webhook():
     if request.method == 'POST':
         data = request.json  # Get the JSON data sent in the request
 
+        print(data)
+
         try:
             user = data['key']['remoteJid']
 
