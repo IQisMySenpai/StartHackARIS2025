@@ -12,17 +12,20 @@ client = OpenAI(
 )
 
 def remove_response_formating(response, type):
-    response = response.strip('```')
-    if response.startswith(type):
-        response = response[len(type):]
+    response = response.replace(f'```{type}', '')
+    response = response.replace('```', '')
+    response = response.strip()
     response = response.strip('\n')
+    response = response.strip()
 
     return response
 
 class ClassificationReport(BaseModel):
     name: Optional[str] = None
     question: Literal['Question', 'Weather Data', 'Miscellaneous']
-    english: Optional[Literal['Good', 'Bad', 'Average']] = None
+    language: Optional[str] = None
+    plant: Optional[str] = None
+    literacy: Optional[Literal['Good', 'Bad', 'Average']] = None
     time: Optional[str] = None
 
 def classification_request(message):
@@ -57,20 +60,56 @@ def classification_request(message):
             })
             continue
 
-def classic_response_request(message):
+def classic_response_request(message, user, past_messages):
+    msg = message['original_message']
+
+    context = f"Date and Time: {datetime.datetime.now(datetime.timezone.utc).isoformat()}"
+    if 'name' in user:
+        context += f"\nUser Name: {user['name']}"
+    if 'language' in user:
+        context += f"\nUser Preferred Language: {user['language']}"
+    if 'plant' in user:
+        context += f"\nGrowing Plant on Field: {user['plant']}"
+    if 'literacy' in user:
+        context += f"\nUser Literacy Level: {user['literacy']}"
+    if 'target_time' in message:
+        context += f"\nTarget Time: {message['target_time']}"
+
     messages = [{
         "role": "developer",
         "content": classic_response_prompt
-    }, {
+    }]
+
+    past_messages.reverse()
+
+    for past_message in past_messages:
+        messages.append({
+            "role": "user",
+            "content": f"""
+                # Message
+                {past_message['original_message']}
+            """
+        })
+        messages.append({
+            "role": "assistant",
+            "content": f"""
+                ```text
+                {past_message['responded']}
+                ```
+            """
+        })
+
+
+    messages.append({
         "role": "user",
         "content": f"""
             # Message
-            {message}
+            {msg}
 
             # Context
-            Date and Time: {datetime.datetime.now(datetime.timezone.utc).isoformat()}
+            {context}
         """
-    }]
+    })
     for _ in range(5):
         completion = client.chat.completions.create(
             model=config['openai_model'],
