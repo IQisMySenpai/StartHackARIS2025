@@ -1,4 +1,5 @@
 import requests
+from io import BytesIO
 
 def wa_request(endpoint: str, payload):
     headers = {'Content-Type': 'application/json'}
@@ -44,3 +45,22 @@ def send_message(wa_id, message):
     }
 
     return wa_request('/send-message', payload)
+
+def send_image(wa_id, image):
+    # The URL where the image will be uploaded
+    url = 'http://localhost:3000/fuck-waha/send-image'
+
+    # Convert the PIL image to a byte stream
+    img_byte_arr = BytesIO()
+    image.save(img_byte_arr, format='PNG')  # Change format if your image is not PNG
+    img_byte_arr.seek(0)
+
+    # Prepare the file for upload
+    files = {'upload': ('image.png', img_byte_arr, 'image/png')}
+    params = {'wa_id': wa_id}
+
+    # Make the POST request to upload the image along with parameters
+    response = requests.post(url, files=files, data=params)
+
+    # Print the response from the server
+    print(response.text)

@@ -5,7 +5,7 @@ You are given a whatsapp message from a user of our app (with some additional co
 - Is the user asking for data at a specific time: [<Time as ISO 8601>, null]
 - What language / dialect is the person speaking: [<Language>, null]
 - How good is the users literacy: ['Good', 'Bad', 'Average', null]
-- What plant the user is growing: [<Plant>, null]
+- What plant the user is growing: ['Soybean', 'Corn', 'Cotton', 'Rice', 'Wheat', null]
 
 ## Syngenta Biological Products:
 If the user is asking or the topic could be related to Syngenta Biological Products, here is some information about them:
@@ -33,7 +33,7 @@ Always include the question field.
     "time": "<Time as ISO 8601>",
     "language": "<Language>",
     "literacy": "<Good/Bad/Average>",
-    "plant": "<Plant>"
+    "plant": "<Soybean/Corn/Cotton/Rice/Wheat>"
 }
 ```
 
