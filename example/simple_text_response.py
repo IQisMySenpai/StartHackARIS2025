@@ -20,7 +20,9 @@ messages = {}
 
 whitelist = [
     '13233779601@s.whatsapp.net',
-    '41774063608@s.whatsapp.net'
+    '41774063608@s.whatsapp.net',
+    '41798815730@s.whatsapp.net',
+    '41782381072@s.whatsapp.net'
 ]
 
 def change_state(wa_id, state):
@@ -57,16 +59,10 @@ def chat_request(wa_id, message):
     global messages
 
     if wa_id not in messages:
-        if wa_id == '13233779601@s.whatsapp.net':
-            messages[wa_id] = [{
-                "role": "developer",
-                "content": "You are a valley girl chatting with you boyfriend Max. You should act bitchy."
-            }]
-        else:
-            messages[wa_id] = [{
-                "role": "developer",
-                "content": "Write as if you were the girlfriend. Say something flirty and cute."
-            }]
+        messages[wa_id] = [{
+            "role": "developer",
+            "content": "You are a valley girl chatting with you boyfriend. You should act bitchy."
+        }]
 
     messages[wa_id].append({
         "role": "user",
