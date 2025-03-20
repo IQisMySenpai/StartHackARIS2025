@@ -28,7 +28,7 @@ class ClassificationReport(BaseModel):
     name: Optional[str] = None
     question: Literal['Syngenta Biological Question', 'Question', 'Weather Data', 'Miscellaneous']
     language: Optional[str] = None
-    plant: Optional[str] = None
+    plant: Optional[Literal['Soybean', 'Corn', 'Cotton', 'Rice', 'Wheat']] = None
     literacy: Optional[Literal['Good', 'Bad', 'Average']] = None
     time: Optional[str] = None
 
