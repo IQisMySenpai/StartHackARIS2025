@@ -76,7 +76,7 @@ def get_weather_forecast(
         measureLabel, 
         start_date, 
         end_date, 
-        api_key="d4f087c7-7efc-41b4-9292-0f22b6199215"
+        api_key="api_key_here"
         ):
     # Define the API endpoint
     url = "http://services.cehub.syngenta-ais.com/api/Forecast/ShortRangeForecast"+forecast_type
