@@ -22,18 +22,29 @@ whitelist = [
     '41782381072@s.whatsapp.net'
 ]
 
+def handle_location_update(wa_id, latitude, longitude):
+    db_user = {
+        'wa_id': wa_id,
+        'latitude': latitude,
+        'longitude': longitude
+    }
+
+    mongo.update_one('users', {'wa_id': wa_id}, {'$set': db_user}, upsert=True)
+
 @app.route('/wh/dummy', methods=['POST'])
 def webhook():
     if request.method == 'POST':
         data = request.json  # Get the JSON data sent in the request
-
-        # print(data)
 
         try:
             user = data['key']['remoteJid']
 
             if user not in whitelist:
                 # print(f'Got Message from {user}, which is not whitelisted')
+                return jsonify({'message': 'Data received successfully, user not on Whitelist'}), 200
+
+            if 'locationMessage' in data['message']:
+                handle_location_update(user, data['message']['locationMessage']['degreesLatitude'], data['message']['locationMessage']['degreesLongitude'])
                 return jsonify({'message': 'Data received successfully'}), 200
 
             if 'extendedTextMessage' in data['message']:
@@ -41,7 +52,12 @@ def webhook():
             else:
                 message = data['message']['conversation']
 
+            if message is None or message == '':
+                return jsonify({'message': 'Data received successfully, but no text message found!'}), 200
+
             print(f'Received {message} from {user}')
+
+            #push_name = data['pushName']
 
             classification = classification_request(message)
 
@@ -56,6 +72,24 @@ def webhook():
                 db_message['target_time'] = classification['time']
 
             mongo.insert_one('messages', db_message)
+
+            db_user = {
+                'wa_id': user
+            }
+
+            if 'name' in classification:
+                db_user['name'] = classification['name']
+
+            if 'language' in classification:
+                db_user['language'] = classification['language']
+
+            if 'literacy' in classification:
+                db_user['literacy'] = classification['literacy']
+
+            if 'plant' in classification:
+                db_user['plant'] = classification['plant']
+
+            mongo.update_one('users', {'wa_id': user}, {'$set': db_user}, upsert=True)
 
             return jsonify({'message': 'Data received successfully'}), 200
         except KeyError:

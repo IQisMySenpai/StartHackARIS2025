@@ -23,8 +23,17 @@ while True:
     )
 
     for message in messages:
-        print(message)
-        response = classic_response_request(message['original_message'])
+        past_messages = mongo.find(
+            'messages',
+            {'wa_id': message['wa_id'], 'responded': {'$exists': True}},
+            sort=[('received_time', -1)],
+            limit=5
+        )
+
+        user = mongo.find_one('users', {'wa_id': message['wa_id']})
+
+        if message['question_type'] == 'Question' or message['question_type'] == 'Miscellaneous':
+            response = classic_response_request(message, user, past_messages)
 
         change_state(message['wa_id'], 'composing')
         sleep(generate_writing_duration(response))
@@ -34,7 +43,7 @@ while True:
         mongo.update_one(
             'messages',
             {'_id': message['_id']},
-            {'$set': {'responded': True}}
+            {'$set': {'responded': response}}
         )
 
         sleep(uniform(3, 7))
