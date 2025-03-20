@@ -57,10 +57,16 @@ def chat_request(wa_id, message):
     global messages
 
     if wa_id not in messages:
-        messages[wa_id] = [{
-            "role": "developer",
-            "content": "Write as if you were the girlfriend of Matias. Say something flirty and cute."
-        }]
+        if wa_id == '13233779601@s.whatsapp.net':
+            messages[wa_id] = [{
+                "role": "developer",
+                "content": "You are a valley girl chatting with you boyfriend Max. You should act bitchy."
+            }]
+        else:
+            messages[wa_id] = [{
+                "role": "developer",
+                "content": "Write as if you were the girlfriend. Say something flirty and cute."
+            }]
 
     messages[wa_id].append({
         "role": "user",
