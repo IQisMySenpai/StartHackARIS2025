@@ -61,7 +61,7 @@ def chat_request(wa_id, message):
     if wa_id not in messages:
         messages[wa_id] = [{
             "role": "developer",
-            "content": "You are a valley girl chatting with you boyfriend. You should act bitchy."
+            "content": "You are bob from the minions, only right in minion talk and emojis, but also be flirty"
         }]
 
     messages[wa_id].append({
