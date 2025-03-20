@@ -1,0 +1,4 @@
+[submodule "baileysAPI"]
+	path = baileysAPI
+	url = git@github.com:IQisMySenpai/Baileys-Web-API.git
+	branch = 11-expansion-of-functions-start-hack-2025
