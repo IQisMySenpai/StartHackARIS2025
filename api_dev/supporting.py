@@ -10,7 +10,7 @@ def create_risk_report(user, target_time=None):
         "TempAir_DailyMin (C)",
         "TempAir_DailyAvg (C)",
         "Precip_DailySum (mm)",
-        "Evapotranspiration_DailySum (mm)",
+        "Referenceevapotranspiration_DailySum (mm)",
         "Soilmoisture_0to10cm_DailyAvg (vol%)",
     ]
 
@@ -38,7 +38,7 @@ def create_risk_report(user, target_time=None):
     P = weather_forecast["Precip_DailySum (mm)"]  # Cumulative rainfall
     SM = weather_forecast["Soilmoisture_0to10cm_DailyAvg (vol%)"]  # Soil moisture
     # GDD calculation is internal to the calculator
-    E = 300  # Cumulative evaporation
+    E = weather_forecast["Referenceevapotranspiration_DailySum (mm)"] # Cumulative evaporation
     pH = 6.5  # Soil pH
     N = 0.02  # Available nitrogen
 
