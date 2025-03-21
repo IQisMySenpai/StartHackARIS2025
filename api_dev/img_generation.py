@@ -34,8 +34,8 @@ def generate(elements, plant, city_name):
     draw = ImageDraw.Draw(img)
 
     # Load specific fonts
-    font_title = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-ExtraBold.ttf"), 56)
-    font_header = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Bold.ttf"), 50)
+    font_title = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Bold.ttf"), 48)
+    font_header = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Regular.ttf"), 50)
     font_text = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Italic.ttf"), 35)
 
     # Draw the title background   
