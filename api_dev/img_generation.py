@@ -3,126 +3,99 @@ from datetime import datetime
 import textwrap
 import os
 
-__red__="#ea251e"
-__backround__="#264600"
-__top__="#7cf63c"
+# Color definitions
+__red__ = "#ea251e"
+__background__ = "#264600"
+__top__ = "#7cf63c"
 
+# Get the current file path
 current_file_path = os.path.dirname(os.path.abspath(__file__))
 
-def generate(elements, crop_name, city_name):
-    today_date = datetime.today().strftime("%Y-%m-%d")
-    title = f"Risk Factors - {today_date}\n{crop_name} - {city_name}"
+def load_font(font_path, size):
+    """Load a font and check if it renders correctly."""
+    try:
+        font = ImageFont.truetype(font_path, size)
+        # Test rendering a sample string to check if the font works
+        img_test = Image.new("RGB", (1, 1))
+        draw_test = ImageDraw.Draw(img_test)
+        draw_test.text((0, 0), "Test", font=font, fill="black")
+        return font
+    except Exception as e:
+        print(f"Failed to load font '{font_path}': {e}")
+        return ImageFont.load_default()
+
+def generate(elements, plant, city_name):
+    today_date = datetime.today().strftime("%Y.%m.%d")
+    title = f"Risk Factors for {plant}\n{city_name} | {today_date}"
 
     # Create a blank image with higher resolution
-    img = Image.new("RGB", (1200, 1600), "white")  # Increased resolution to 1200x1600
+    img_width, img_height = 1080, 1920
+    img = Image.new("RGB", (img_width, img_height), "white")
     draw = ImageDraw.Draw(img)
 
-    # Function to load a font and check if it renders correctly
-    def load_font(font_path, size):
-        try:
-            font = ImageFont.truetype(font_path, size)
-            # Test rendering a sample string to check if the font works
-            test_string = "Test"  # You can use a string with special characters if needed
-            img_test = Image.new("RGB", (1, 1))  # Create a small image
-            draw_test = ImageDraw.Draw(img_test)
-            draw_test.text((0, 0), test_string, font=font, fill="black")  # Attempt to draw text
-            return font
-        except Exception as e:
-            print(f"Failed to load font '{font_path}': {e}")
-            return None
-
-    # Load specific fonts with a fallback to default
-    font_title = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Regular.ttf"), 56) or ImageFont.load_default()
-    font_header = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Bold.ttf"), 50) or ImageFont.load_default()
-    font_text = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Italic.ttf"), 35) or ImageFont.load_default()
-
+    # Load specific fonts
+    font_title = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-ExtraBold.ttf"), 56)
+    font_header = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Bold.ttf"), 50)
+    font_text = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Italic.ttf"), 35)
 
     # Draw the title background   
-    draw.rounded_rectangle([(0, -20), (1200, 220)], 
-                               radius=20, fill="black", outline="black", width=3)
+    draw.rounded_rectangle([(0, -20), (img_width, 220)], radius=20, fill="black", outline="black", width=3)
 
-    # Draw title with padding and center it
-    title_lines = title.split("\n")
+    # Draw title with padding
     title_y = 35
-    for i, line in enumerate(title_lines):
-        #text_width = draw.textlength(line, font=font_title)  # Get the width of the text
-        text_x = 40 # Make room for syngenta logo
-        draw.text((text_x, title_y + i * 80), line, fill="white", font=font_title)
+    for i, line in enumerate(title.split("\n")):
+        draw.text((40, title_y + i * 80), line, fill="white", font=font_title)
 
-    y_offset = 260
-    bubble_width = 1000
-    
-    # Load the icon from a local file
-    icon_path=os.path.join(current_file_path, "Icons/logo.png")
-    if os.path.exists(icon_path):
-        icon = Image.open(icon_path).convert("RGBA")
-        icon.thumbnail((icon.width // 8, icon.height // 8), Image.LANCZOS)  # Scale down by 50% without distorting
-    else:
-        print(f"⚠️ Warning: Icon '{icon_path}' not found!")  # Debug message
-        icon = None  # Prevent crash
+    y_offset = img_height // 7
+    bubble_width = int(img_width*0.9)
+
+    # Load the logo icon
+    icon_path = os.path.join(current_file_path, "Icons/logo.png")
+    icon = Image.open(icon_path).convert("RGBA") if os.path.exists(icon_path) else None
     if icon:
-            img.paste(icon, (900,50), icon)  # Paste the icon on the image with transparency
-            text_x += 100  # Adjust text to avoid overlapping icon
+        icon.thumbnail((icon.width // 6.5, icon.height // 6.5), Image.LANCZOS)
+        img.paste(icon, (int(img_width * 0.68), int(img_height * 0.015)), icon)
+
     # Increased padding for more space
-    padding = 40  # Increased padding inside the bubbles
-    bubble_padding = 40  # Increased space between each bubble
-    text_padding = 40  # Padding for text inside the bubble
+    padding, bubble_padding, text_padding = 40, 40, 40
 
     for element in elements:
-        header, body, element_type, icon_path, status = element["header"], element["body"], element["type"], element["icon"], element["status"]
+        header, body, status = element["header"], element["body"], element["status"]
+        icon_path = os.path.join(current_file_path, element["icon"])
 
-        # Fix file path issue (Windows vs Linux)
-        icon_path = os.path.join(current_file_path, icon_path)
-        print(icon_path)
+        # Load the element icon
+        element_icon = Image.open(icon_path).convert("RGBA").resize((80, 80)) if os.path.exists(icon_path) else None
 
-        # Load the icon from a local file
-        if os.path.exists(icon_path):
-            icon = Image.open(icon_path).convert("RGBA").resize((80, 80))  # Resize icon for higher resolution
-        else:
-            print(f"⚠️ Warning: Icon '{icon_path}' not found!")  # Debug message
-            icon = None  # Prevent crash
-
-        # Set color based on type
-        if(status):
+        if status:
             box_color = __red__
-           
-            # Wrap body text with an adjusted width so it fits within the bubble
             wrapped_body = textwrap.fill(body, width=45)
 
-            # Calculate text sizes correctly
-            header_bbox = draw.textbbox((0, 0), header, font=font_header)  # Get bounding box
-            header_height = header_bbox[3] - header_bbox[1]
-
-            body_lines = wrapped_body.split("\n")
-            body_height = sum([draw.textbbox((0, 0), line, font=font_text)[3] - draw.textbbox((0, 0), line, font=font_text)[1] for line in body_lines])
-
-            # Adjust bubble height dynamically with padding
+            # Calculate text sizes
+            header_height = draw.textbbox((0, 0), header, font=font_header)[3] - draw.textbbox((0, 0), header, font=font_header)[1]
+            body_height = sum(draw.textbbox((0, 0), line, font=font_text)[3] - draw.textbbox((0, 0), line, font=font_text)[1] for line in wrapped_body.split("\n"))
             bubble_height = header_height + body_height + 2 * padding
 
             # Calculate x position for centering the bubble
-            bubble_x = (1200 - bubble_width) // 2
+            bubble_x = (img_width - bubble_width) // 2
 
-            # Shadow offset and color
+            # Draw shadowed bubble
             shadow_offset = 10
-            shadow_color = (0, 0, 0, 150)  # Semi-transparent black for the shadow
-
-            # Draw shadowed bubble (offset slightly)
+            shadow_color = (0, 0, 0, 150)
             draw.rounded_rectangle([(bubble_x + shadow_offset, y_offset + shadow_offset), 
                                     (bubble_x + bubble_width + shadow_offset, y_offset + bubble_height + shadow_offset)], 
                                 radius=20, fill=shadow_color)
 
-            # Draw the actual bubble on __top__
+            # Draw the actual bubble
             draw.rounded_rectangle([(bubble_x, y_offset), (bubble_x + bubble_width, y_offset + bubble_height)], 
                                 radius=20, fill="white", outline="black", width=3)
             draw.rounded_rectangle([(bubble_x, y_offset), (bubble_x + 125, y_offset + bubble_height)], 
                                 radius=20, fill=box_color, outline="black", width=3)
 
-            text_x_offset = 0  # Offset from the left side
-            text_x = bubble_x + text_padding + text_x_offset # Adjust text start position after icon
+            text_x = bubble_x + text_padding  # Adjust text start position after icon
 
             # Paste icon (if available)
-            if icon:
-                img.paste(icon, (text_x-15, y_offset + round(bubble_height/2)-30), icon)  # Paste the icon on the image with transparency
+            if element_icon:
+                img.paste(element_icon, (text_x - 15, y_offset + round(bubble_height / 2) - 30), element_icon)
                 text_x += 100  # Adjust text to avoid overlapping icon
 
             # Draw header text with padding
@@ -130,12 +103,11 @@ def generate(elements, crop_name, city_name):
 
             # Draw body text with increased line spacing and padding
             line_height = draw.textbbox((0, 0), "A", font=font_text)[3] - draw.textbbox((0, 0), "A", font=font_text)[1]
-            for i, line in enumerate(body_lines):
+            for i, line in enumerate(wrapped_body.split("\n")):
                 line_y = y_offset + header_height + padding + i * (line_height + 10)  # Added 10 pixels for extra line spacing
                 draw.text((text_x, line_y), line, fill="black", font=font_text)
 
             # Update y_offset to position next bubble with additional padding
             y_offset += bubble_height + bubble_padding
 
-    #img.save("risks.png")
     return img
