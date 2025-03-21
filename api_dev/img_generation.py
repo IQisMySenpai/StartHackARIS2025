@@ -101,11 +101,35 @@ def generate(elements, plant, city_name):
             # Draw header text with padding
             draw.text((text_x, y_offset + 20), header, fill="black", font=font_header)
 
+            # Define a list of words to be bolded
+            bold_words = ["Stress",
+                          "Buster", 
+                          "Yield", 
+                          "Booster",
+                          "Buster.", 
+                          "Booster."]  # Add any words you want to be bolded
+
             # Draw body text with increased line spacing and padding
             line_height = draw.textbbox((0, 0), "A", font=font_text)[3] - draw.textbbox((0, 0), "A", font=font_text)[1]
             for i, line in enumerate(wrapped_body.split("\n")):
                 line_y = y_offset + header_height + padding + i * (line_height + 10)  # Added 10 pixels for extra line spacing
-                draw.text((text_x, line_y), line, fill="black", font=font_text)
+                words = line.split()  # Split the line into words
+                text_x = bubble_x + text_padding  # Reset text_x for each line
+                if element_icon: text_x += 100  # Adjust text to avoid overlapping icon
+
+                for word in words:
+                    # Check if the word should be bold
+                    if word in bold_words:  # Use lower() for case-insensitive matching
+                        font_to_use = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-SemiBoldItalic.ttf"), 35)  # Use bold font for the word
+                        print(word)
+                    else:
+                        font_to_use = font_text  # Use regular font
+
+                    # Draw the word
+                    draw.text((text_x, line_y), word, fill="black", font=font_to_use)
+
+                    # Update the text_x position based on the width of the drawn word
+                    text_x += draw.textbbox((0, 0), word, font=font_to_use)[2] - draw.textbbox((0, 0), word, font=font_to_use)[0] + 10  # Add some space between words
 
             # Update y_offset to position next bubble with additional padding
             y_offset += bubble_height + bubble_padding
