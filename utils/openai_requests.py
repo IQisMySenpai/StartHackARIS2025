@@ -198,3 +198,22 @@ def speech_to_text_request(audio_data):
     )
 
     return transcription.text
+
+def text_to_speech_request(text):
+    response = client.audio.speech.create(
+        model="gpt-4o-mini-tts",
+        voice="onyx",
+        input=text,
+        response_format="opus",
+        # instructions="""
+        #     Tone: Friendly, calm, practical
+        #     Style: Conversational but clear
+        #     Speed: Medium-slow
+        #     Language: Local, simple, respectful
+        #     Personality: Like a wise neighbor or community advisor
+        # """
+    )
+
+    return ('speech.opus', response, 'audio/opus')
+
+
