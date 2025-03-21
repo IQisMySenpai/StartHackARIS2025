@@ -18,13 +18,6 @@ mongo = MongoAPI(
 
 app = Flask(__name__)
 
-whitelist = [
-    '13233779601@s.whatsapp.net',
-    '41774063608@s.whatsapp.net',
-    '41798815730@s.whatsapp.net',
-    '41782381072@s.whatsapp.net'
-]
-
 def handle_location_update(wa_id, latitude, longitude):
     db_user = {
         'wa_id': wa_id,
@@ -39,13 +32,11 @@ def webhook():
     if request.method == 'POST':
         data = request.json  # Get the JSON data sent in the request
 
-        print(data)
-
         try:
             user = data['key']['remoteJid']
 
-            if user not in whitelist:
-                return jsonify({'message': 'Data received successfully, user not on Whitelist'}), 200
+            if not user.endswith("@s.whatsapp.net"):
+                return jsonify({'message': 'Data received successfully, but I serve no groups'}), 200
 
             # Handle location messages
             if 'locationMessage' in data['message']:
