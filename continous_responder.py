@@ -2,8 +2,9 @@ from time import sleep
 from random import uniform
 from mongoAPI import MongoAPI
 from utils.common import config_load, generate_writing_duration
+from utils.openai_requests import classic_response_request, syngenta_bio_request, text_to_speech_request
+from utils.whatsapp_requests import send_message, change_state, send_voice, send_image
 from utils.openai_requests import classic_response_request, syngenta_bio_request
-from utils.whatsapp_requests import send_message, change_state, send_image
 from api_dev.supporting import create_risk_report, get_city_name
 from api_dev.img_generation import generate
 
@@ -42,7 +43,11 @@ while True:
         change_state(message['wa_id'], 'composing')
         sleep(generate_writing_duration())
         change_state(message['wa_id'], 'paused')
-        send_message(message['wa_id'], response)
+
+        if message['respond_with_audio']:
+            send_voice(message['wa_id'], text_to_speech_request(response))
+        else:
+            send_message(message['wa_id'], response)
 
         if message['question_type'] == 'Risk Analysis':
             if 'latitude' in user and 'longitude' in user and 'plant' in user:
