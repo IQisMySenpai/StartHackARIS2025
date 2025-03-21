@@ -27,6 +27,10 @@ def handle_location_update(wa_id, latitude, longitude):
 
     mongo.update_one('users', {'wa_id': wa_id}, {'$set': db_user}, upsert=True)
 
+blacklist = [
+    '13233779601@s.whatsapp.net',
+]
+
 @app.route('/wh/dummy', methods=['POST'])
 def webhook():
     if request.method == 'POST':
@@ -37,6 +41,9 @@ def webhook():
 
             if not user.endswith("@s.whatsapp.net"):
                 return jsonify({'message': 'Data received successfully, but I serve no groups'}), 200
+
+            if user in blacklist:
+                return jsonify({'message': 'Data received successfully, but I serve no blacklist'}), 200
 
             # Handle location messages
             if 'locationMessage' in data['message']:
