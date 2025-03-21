@@ -1,5 +1,4 @@
 import requests
-from geopy.geocoders import Nominatim
 import re
 
 # Define forecast types
@@ -298,19 +297,29 @@ def extract_european_letters(text):
     # Join the list into a string
     return ''.join(extracted_letters)
 
-def get_city_name(latitude, longitude):
-    # Initialize the geolocator
-    geoLoc = Nominatim(user_agent="my_geopy_app")
-    location = str(geoLoc.reverse(f'{latitude}, {longitude}'))
-    
-    # Split the location string by commas
-    address_parts = location.split(',')
-    print(address_parts)
+def get_city_name(
+        longitude,
+        latitude,
+        api_key="d4f087c7-7efc-41b4-9292-0f22b6199215"
+        ):
+    # Define the API endpoint
+    url = "http://services.cehub.syngenta-ais.com/api/LocationSearch/GenerateLocationByCoordinate"
 
-    # Extract the city name
-    # In this case, the city name is the fourth part (index 3)
-    try:
-        city_name = address_parts[3].strip()  # Use strip() to remove any leading/trailing whitespace
-    except IndexError:
-        city_name = address_parts[-1].strip()
-    return extract_european_letters(city_name)
+    # Define the parameters
+    params = {
+        "longitude": longitude, 
+        "latitude": latitude,
+        "ApiKey": api_key
+    }
+
+    # Make the request
+    response = requests.get(url, params=params)
+
+    # Check the response status
+    if response.status_code == 200:
+        data = response.json()
+        return data["name"]
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.text)
+        return None
