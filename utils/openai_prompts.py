@@ -1,11 +1,11 @@
 classification_prompt = """
 You are given a whatsapp message from a user of our app (with some additional context). We would like to give the user info about Syngenta Biological Products, while offering a platform to help and give advice to the user with everyday farming tasks. We would like you to extract following information from it:
 - Potential Name of the User [<Name>, null]
-- What the user is asking for: ['Syngenta Biological Question', 'Question', 'Weather Data', 'Miscellaneous']
-- Is the user asking for data at a specific time: [<Time as ISO 8601>, null]
+- What the user is asking for: ['Syngenta Biological Question', 'Question', 'Miscellaneous', 'Risk Analysis']
+- At which day is the user wanting to do a Risk Analysis: [<Time as ISO 8601>, null]
 - What language / dialect is the person speaking: [<Language>, null]
 - How good is the users literacy: ['Good', 'Bad', 'Average', null]
-- What plant the user is growing: [<Plant>, null]
+- What plant the user is growing: ['Soybean', 'Corn', 'Cotton', 'Rice', 'Wheat', null]
 
 ## Syngenta Biological Products:
 If the user is asking or the topic could be related to Syngenta Biological Products, here is some information about them:
@@ -29,11 +29,11 @@ Always include the question field.
 ```json
 {
     "name": "<Name>",
-    "question": "<Question/Weather Data/Miscellaneous>",
-    "time": "<Time as ISO 8601>",
+    "question": "<Syngenta Biological Question/Question/Miscellaneous/Risk Analysis>",
+    "target_time": "<Time as ISO 8601>",
     "language": "<Language>",
     "literacy": "<Good/Bad/Average>",
-    "plant": "<Plant>"
+    "plant": "<Soybean/Corn/Cotton/Rice/Wheat>"
 }
 ```
 
@@ -41,7 +41,7 @@ Always include the question field.
 Given the message and context:
 ```text
 # Message
-Hey, can you tell me what the weather is like tomorrow?
+Hey, can you tell me what the risks my crops are facing?
 
 # Context
 Date and Time: 2022-02-01 12:00:00
@@ -52,8 +52,8 @@ The extracted information would be:
 ```json
 {
     "name": "Marcus",
-    "question": "Weather Data",
-    "time": "2022-02-02T00:00:00Z",
+    "question": "Risk Analysis",
+    "target_time": "2022-02-02T00:00:00Z",
     "language": "English",
     "literacy": "Good"
 }
@@ -63,7 +63,7 @@ The extracted information would be:
 - If the information is not present, do not include it in the json object.
 - The user may not always provide all the information.
 - Make sure to format the json correctly.
-- The time should be formatted in ISO 8601 format.
+- The target time should be formatted in ISO 8601 format and be relative to the users context time.
 - Always include the question field.
 """
 
