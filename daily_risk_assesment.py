@@ -26,28 +26,44 @@ def job():
     for user in users:
         risks, risks_floats = create_risk_report(user, True)
 
-        crop_name = user['plant']
+        plant = user['plant']
         longitude = user['longitude']
         latitude = user['latitude']
 
         elements = [
-            {"header": "Elevated temperature",
-             "body": "The maximum temperature will be exceeded, I recommend applyig Stress Buster to ensure the well being of your crops.",
-             "type": "warning", "icon": "Icons/temperature-arrow-up-solid.png",
-             "status": (risks['diurnal_stress'] | risks["nighttime_stress"])},
-            {"header": "Low moisture",
-             "body": "A drought is incoming, I recomend appling Stress buster to ensure the well being of your crops.",
-             "type": "warning", "icon": "Icons/sun-plant-wilt-solid.png", "status": risks["drought_risk"]},
-            {"header": "Frost Warning",
-             "body": "Frost is expected in the coming days, I recommend applying Stress Buster to your crops to ensure their well being",
-             "type": "warning", "icon": "Icons/snowflake-regular.png", "status": risks["frost_stress"]},
-            {"header": "Yield Risk",
-             "body": "Based on avilible data, your yield is at a risk of being lower that expected. Apply Yield Booster to your crops to ensure the best possible yield.",
-             "type": "warning", "icon": "Icons/arrow-down-wide-short-solid.png", "status": risks["yield_risk"]}
+            {
+                "header": "Elevated Temperature Alert!",
+                "body": "Hey there! It looks like the maximum temperature is set to rise. To keep your crops happy and healthy, I highly recommend applying Stress Buster. It’s your best friend in tackling heat stress and ensuring your plants thrive!",
+                "type": "warning",
+                "icon": "Icons/temperature-arrow-up-solid.png",
+                "status": (risks['diurnal_stress'] | risks["nighttime_stress"])
+            },
+            {
+                "header": "Low Moisture Warning!",
+                "body": "Heads up! A drought is on the horizon. Don’t let your crops suffer—apply Stress Buster to keep them hydrated and flourishing. Your plants will thank you for it!",
+                "type": "warning",
+                "icon": "Icons/sun-plant-wilt-solid.png",
+                "status": risks["drought_risk"]
+            },
+            {
+                "header": "Frost Warning!",
+                "body": "Brrr! Frost is expected in the coming days. Protect your precious crops by applying Stress Buster. It’s the perfect shield to ensure they stay safe and sound during chilly nights!",
+                "type": "warning",
+                "icon": "Icons/snowflake-regular.png",
+                "status": risks["frost_stress"]
+            },
+            {
+                "header": "Yield Risk Alert!",
+                "body": "Uh-oh! Based on the latest data, your yield might be at risk of falling short. Don’t worry—apply Yield Booster to give your crops the extra boost they need for a bountiful harvest. Let’s make sure you get the best out of your fields!",
+                "type": "warning",
+                "icon": "Icons/arrow-down-wide-short-solid.png",
+                "status": risks["yield_risk"]
+            }
         ]
+
         city_name = get_city_name(longitude, latitude)
 
-        send_image(user['wa_id'], generate(elements, crop_name, city_name))
+        send_image(user['wa_id'], generate(elements, plant, city_name))
 
 
 # Schedule the task to run at 08:00 AM every day
