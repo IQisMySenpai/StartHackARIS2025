@@ -14,7 +14,7 @@ def create_risk_report(user, target_time=None):
         "Soilmoisture_0to10cm_DailyAvg (vol%)",
     ]
 
-    if target_time:  # Load from ISO 8601 format and convert to ISO 8601 date format
+    if target_time is not None:  # Load from ISO 8601 format and convert to ISO 8601 date format
         start_date = target_time.split("T")[0]
         end_date = start_date
     else:
