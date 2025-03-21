@@ -5,6 +5,7 @@ import datetime
 from pydantic import BaseModel
 from typing import Optional, Literal
 from geopy.geocoders import Nominatim
+from api_dev.supporting import create_risk_report
 
 config = config_load()
 
@@ -26,11 +27,11 @@ def remove_response_formating(response, type):
 
 class ClassificationReport(BaseModel):
     name: Optional[str] = None
-    question: Literal['Syngenta Biological Question', 'Question', 'Weather Data', 'Miscellaneous']
+    question: Literal['Syngenta Biological Question', 'Question', 'Miscellaneous', 'Risk Analysis']
     language: Optional[str] = None
-    plant: Optional[str] = None
+    plant: Optional[Literal['Soybean', 'Corn', 'Cotton', 'Rice', 'Wheat']] = None
     literacy: Optional[Literal['Good', 'Bad', 'Average']] = None
-    time: Optional[str] = None
+    target_time: Optional[str] = None
 
 def classification_request(message):
     messages = [{
@@ -65,6 +66,7 @@ def classification_request(message):
             continue
 
 def context_factory(user, message):
+
     context = f"Date and Time: {datetime.datetime.now(datetime.timezone.utc).isoformat()}"
     if 'name' in user:
         context += f"\nUser Name: {user['name']}"
@@ -80,6 +82,20 @@ def context_factory(user, message):
         lat = user['latitude']
         lon = user['longitude']
         context += f"\nField Location: Latitude: {lat}, Longitude: {lon}, Address: {geoLoc.reverse(f'{lat}, {lon}').address}"
+
+        if 'plant' in user:
+            if 'target_time' in message:
+                risks, risks_floats = create_risk_report(user, target_time=message['target_time'])
+            else:
+                risks, risks_floats = create_risk_report(user)
+
+            context += f"\n\nRisk Report: (Note only high values need to be mentioned)"
+            context += f"\n Diurnal Heat Stress: {risks['diurnal_stress']} (Higher is worse)"
+            context += f"\n Nighttime Heat Stress: {risks['nighttime_stress']} (Higher is worse)"
+            context += f"\n Frost Stress: {risks['frost_stress']} (Higher is worse)"
+            context += f"\n Drought Risk: {risks['drought_risk']} (Higher is worse)"
+            context += f"\n Yield Risk: {risks['yield_risk']} (Higher is worse)"
+
     if 'latitude' not in user or 'longitude' not in user:
         context += f"\n\nRemind User to Provide the Location Message of their Field, as we need it to provide accurate weather data."
 

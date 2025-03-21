@@ -91,8 +91,8 @@ def webhook():
                 'respond_with_audio': respond_with_audio
             }
 
-            if 'time' in classification:
-                db_message['target_time'] = classification['time']
+            if 'target_time' in classification:
+                db_message['target_time'] = classification['target_time']
 
             mongo.insert_one('messages', db_message)
 
