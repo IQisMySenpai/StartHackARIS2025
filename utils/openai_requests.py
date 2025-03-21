@@ -190,3 +190,11 @@ def syngenta_bio_request(message, user, past_messages):
 
     return None
 
+def speech_to_text_request(audio_data):
+    # Send the audio to OpenAI Whisper for transcription
+    transcription = client.audio.transcriptions.create(
+        model="whisper-1",
+        file=audio_data
+    )
+
+    return transcription.text
