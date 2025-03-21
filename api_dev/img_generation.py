@@ -7,6 +7,8 @@ __red__="#ea251e"
 __backround__="#264600"
 __top__="#7cf63c"
 
+current_file_path = os.path.dirname(os.path.abspath(__file__))
+
 def generate(elements, crop_name, city_name):
     today_date = datetime.today().strftime("%Y-%m-%d")
     title = f"Risk Factors - {today_date}\n{crop_name} - {city_name}"
@@ -30,9 +32,9 @@ def generate(elements, crop_name, city_name):
             return None
 
     # Load specific fonts with a fallback to default
-    font_title = load_font("Poppins/poppins/Poppins-Regular.ttf", 56) or ImageFont.load_default()
-    font_header = load_font("Poppins/poppins/Poppins-Bold.ttf", 50) or ImageFont.load_default()
-    font_text = load_font("Poppins/poppins/Poppins-Italic.ttf", 35) or ImageFont.load_default()
+    font_title = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Regular.ttf"), 56) or ImageFont.load_default()
+    font_header = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Bold.ttf"), 50) or ImageFont.load_default()
+    font_text = load_font(os.path.join(current_file_path, "Poppins/poppins/Poppins-Italic.ttf"), 35) or ImageFont.load_default()
 
 
     # Draw the title background   
@@ -51,7 +53,7 @@ def generate(elements, crop_name, city_name):
     bubble_width = 1000
     
     # Load the icon from a local file
-    icon_path="Icons/logo.png"
+    icon_path=os.path.join(current_file_path, "Icons/logo.png")
     if os.path.exists(icon_path):
         icon = Image.open(icon_path).convert("RGBA")
         icon.thumbnail((icon.width // 8, icon.height // 8), Image.LANCZOS)  # Scale down by 50% without distorting
@@ -70,7 +72,7 @@ def generate(elements, crop_name, city_name):
         header, body, element_type, icon_path, status = element["header"], element["body"], element["type"], element["icon"], element["status"]
 
         # Fix file path issue (Windows vs Linux)
-        icon_path = icon_path.replace("\\", "/")
+        icon_path = os.path.join(current_file_path, icon_path)
         print(icon_path)
 
         # Load the icon from a local file
@@ -135,5 +137,5 @@ def generate(elements, crop_name, city_name):
             # Update y_offset to position next bubble with additional padding
             y_offset += bubble_height + bubble_padding
 
-    img.save("risks.png")
+    #img.save("risks.png")
     return img

@@ -305,8 +305,12 @@ def get_city_name(latitude, longitude):
     
     # Split the location string by commas
     address_parts = location.split(',')
+    print(address_parts)
 
     # Extract the city name
     # In this case, the city name is the fourth part (index 3)
-    city_name = address_parts[3].strip()  # Use strip() to remove any leading/trailing whitespace
+    try:
+        city_name = address_parts[3].strip()  # Use strip() to remove any leading/trailing whitespace
+    except IndexError:
+        city_name = address_parts[-1].strip()
     return extract_european_letters(city_name)
