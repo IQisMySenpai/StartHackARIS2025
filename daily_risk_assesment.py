@@ -24,7 +24,7 @@ def job():
     print(users)
 
     for user in users:
-        risks, risks_floats = create_risk_report(user, True)
+        risks, risks_floats = create_risk_report(user)
 
         plant = user['plant']
         longitude = user['longitude']
@@ -65,9 +65,9 @@ def job():
 
         send_image(user['wa_id'], generate(elements, plant, city_name))
 
-
-# Schedule the task to run at 08:00 AM every day
-schedule.every().day.at("08:00").do(job)
-while True:
-    schedule.run_pending()  # Run the scheduled task if it's time
-    time.sleep(60)  # Check every minute if it's time to run the task
+job()
+# # Schedule the task to run at 08:00 AM every day
+# schedule.every().day.at("08:00").do(job)
+# while True:
+#     schedule.run_pending()  # Run the scheduled task if it's time
+#     time.sleep(60)  # Check every minute if it's time to run the task
