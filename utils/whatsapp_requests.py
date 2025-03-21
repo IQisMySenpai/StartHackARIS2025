@@ -46,6 +46,18 @@ def send_message(wa_id, message):
 
     return wa_request('/send-message', payload)
 
+def send_voice(wa_id, voice):
+    url = 'http://localhost:3000/fuck-waha/send-voice'
+
+    files = {'upload': voice}
+    params = {'wa_id': wa_id}
+
+    # Send the request
+    upload_response = requests.post(url, files=files, data=params)
+
+    # Print the response from the server
+    print(upload_response.text)
+
 def send_image(wa_id, image):
     # The URL where the image will be uploaded
     url = 'http://localhost:3000/fuck-waha/send-image'

@@ -2,7 +2,10 @@ from mongoAPI import MongoAPI
 from utils.common import config_load
 from flask import Flask, request, jsonify
 import datetime
-from utils.openai_requests import classification_request
+from utils.openai_requests import classification_request, speech_to_text_request
+import base64
+from pydub import AudioSegment
+import io
 
 config = config_load()
 
@@ -15,13 +18,6 @@ mongo = MongoAPI(
 
 app = Flask(__name__)
 
-whitelist = [
-    '13233779601@s.whatsapp.net',
-    '41774063608@s.whatsapp.net',
-    '41798815730@s.whatsapp.net',
-    '41782381072@s.whatsapp.net'
-]
-
 def handle_location_update(wa_id, latitude, longitude):
     db_user = {
         'wa_id': wa_id,
@@ -31,6 +27,10 @@ def handle_location_update(wa_id, latitude, longitude):
 
     mongo.update_one('users', {'wa_id': wa_id}, {'$set': db_user}, upsert=True)
 
+blacklist = [
+    '13233779601@s.whatsapp.net',
+]
+
 @app.route('/wh/dummy', methods=['POST'])
 def webhook():
     if request.method == 'POST':
@@ -39,25 +39,45 @@ def webhook():
         try:
             user = data['key']['remoteJid']
 
-            if user not in whitelist:
-                # print(f'Got Message from {user}, which is not whitelisted')
-                return jsonify({'message': 'Data received successfully, user not on Whitelist'}), 200
+            if not user.endswith("@s.whatsapp.net"):
+                return jsonify({'message': 'Data received successfully, but I serve no groups'}), 200
 
+            if user in blacklist:
+                return jsonify({'message': 'Data received successfully, but I serve no blacklist'}), 200
+
+            # Handle location messages
             if 'locationMessage' in data['message']:
                 handle_location_update(user, data['message']['locationMessage']['degreesLatitude'], data['message']['locationMessage']['degreesLongitude'])
                 return jsonify({'message': 'Data received successfully'}), 200
 
-            if 'extendedTextMessage' in data['message']:
+            respond_with_audio = False
+
+            # Handle audio messages
+            if 'audioData' in data:
+                audio_base64 = data['audioData']
+                audio_bytes = base64.b64decode(audio_base64)
+
+                # Convert the byte data to an AudioSegment object
+                audio = AudioSegment.from_file(io.BytesIO(audio_bytes), format='ogg')
+
+                # Export the audio to a BytesIO object as WAV format
+                wav_io = io.BytesIO()
+                audio.export(wav_io, format='wav')
+                wav_io.seek(0)  # Move to the start of the file-like object
+
+                fake_taxi = ('audio.wav', wav_io, 'audio/wav')
+
+                message = speech_to_text_request(fake_taxi)
+                respond_with_audio = True
+            elif 'extendedTextMessage' in data['message']:
                 message = data['message']['extendedTextMessage']['text']
             else:
-                message = data['message']['conversation']
+                message = data['message'].get('conversation', '')
 
-            if message is None or message == '':
+            if not message:
                 return jsonify({'message': 'Data received successfully, but no text message found!'}), 200
 
             print(f'Received {message} from {user}')
-
-            #push_name = data['pushName']
 
             classification = classification_request(message)
 
@@ -66,6 +86,7 @@ def webhook():
                 'original_message': message,
                 'received_time': datetime.datetime.now(tz=datetime.timezone.utc),
                 'question_type': classification['question'],
+                'respond_with_audio': respond_with_audio
             }
 
             if 'target_time' in classification:
@@ -73,19 +94,14 @@ def webhook():
 
             mongo.insert_one('messages', db_message)
 
-            db_user = {
-                'wa_id': user
-            }
+            db_user = {'wa_id': user}
 
             if 'name' in classification:
                 db_user['name'] = classification['name']
-
             if 'language' in classification:
                 db_user['language'] = classification['language']
-
             if 'literacy' in classification:
                 db_user['literacy'] = classification['literacy']
-
             if 'plant' in classification:
                 db_user['plant'] = classification['plant']
 
