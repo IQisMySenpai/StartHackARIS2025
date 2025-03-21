@@ -1,7 +1,7 @@
 import datetime
 from api_dev.risks import get_weather_forecast, forecast_type_dict, CropRisksCalculator, get_city_name
 
-def create_risk_report(user):
+def create_risk_report(user, target_time=None):
     forecast_type = forecast_type_dict["Daily"]
     longitude = user['longitude']
     latitude = user['latitude']
@@ -13,8 +13,13 @@ def create_risk_report(user):
         "Evapotranspiration_DailySum (mm)",
         "Soilmoisture_0to10cm_DailyAvg (vol%)",
     ]
-    start_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    end_date = start_date
+
+    if target_time:  # Load from ISO 8601 format and convert to ISO 8601 date format
+        start_date = target_time.split("T")[0]
+        end_date = start_date
+    else:
+        start_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        end_date = start_date
 
     weather_forecast = get_weather_forecast(
         forecast_type=forecast_type,
