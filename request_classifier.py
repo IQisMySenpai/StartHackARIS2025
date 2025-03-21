@@ -68,8 +68,8 @@ def webhook():
                 'question_type': classification['question'],
             }
 
-            if 'time' in classification:
-                db_message['target_time'] = classification['time']
+            if 'target_time' in classification:
+                db_message['target_time'] = classification['target_time']
 
             mongo.insert_one('messages', db_message)
 
