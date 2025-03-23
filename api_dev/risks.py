@@ -1,6 +1,11 @@
 import requests
 import re
 
+from utils.common import config_load
+
+# Load the configuration
+config = config_load()
+
 # Define forecast types
 forecast_type_dict = {
     "Nowcast" : "Nowcast", 
@@ -75,7 +80,7 @@ def get_weather_forecast(
         measureLabel, 
         start_date, 
         end_date, 
-        api_key="api_key_here"
+        api_key = config['syngenta_api']
         ):
     # Define the API endpoint
     url = "http://services.cehub.syngenta-ais.com/api/Forecast/ShortRangeForecast"+forecast_type
@@ -92,7 +97,7 @@ def get_weather_forecast(
         "supplier": "Meteoblue",
         "top": 500,
         "format": "json",
-        "ApiKey": api_key
+        "ApiKey": config['syngenta_api']
     }
 
     # Make the request
@@ -300,7 +305,7 @@ def extract_european_letters(text):
 def get_city_name(
         longitude,
         latitude,
-        api_key="api_key_here"
+        api_key=config['syngenta_api']
         ):
     # Define the API endpoint
     url = "http://services.cehub.syngenta-ais.com/api/LocationSearch/GenerateLocationByCoordinate"
