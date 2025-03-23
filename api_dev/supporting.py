@@ -1,5 +1,5 @@
 import datetime
-from risks import get_weather_forecast, forecast_type_dict, CropRisksCalculator, get_city_name
+from api_dev.risks import get_weather_forecast, forecast_type_dict, CropRisksCalculator, get_city_name
 
 def create_risk_report(user, target_time=None):
     forecast_type = forecast_type_dict["Daily"]

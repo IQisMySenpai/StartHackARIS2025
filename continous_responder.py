@@ -86,8 +86,8 @@ while True:
             {'$set': {'responded': response}}
         )
 
-        sleep(uniform(3, 7))
+        sleep(uniform(3, 7)) # sleep(uniform(0, 2))
 
-    if len(messages) <= 0:
-        sleep(uniform(5, 10))
+        if len(messages) <= 0:
+            sleep(uniform(5, 10)) # sleep(uniform(1, 2))
 

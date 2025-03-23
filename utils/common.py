@@ -9,5 +9,5 @@ def config_load():
         return data
 
 def generate_writing_duration():
-    return uniform(1.5, 10)
+    return uniform(1.5, 10) # uniform(1.5, 3)
 
